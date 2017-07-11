@@ -1,7 +1,7 @@
 const MeshbluConfig = require('meshblu-config')
 const MeshbluHttp = require('meshblu-http')
 const Connector = require('./src/Connector')
-const OctoDash  = require('OctoDash')
+const OctoDash  = require('octodash')
 const packageJSON = require('./package.json')
 
 const CLI_OPTIONS = [
