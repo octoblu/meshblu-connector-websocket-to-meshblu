@@ -3,7 +3,6 @@ const MeshbluHttp = require('meshblu-http')
 const Connector = require('./src/Connector')
 const OctoDash  = require('OctoDash')
 const packageJSON = require('./package.json')
-const _ = require('lodash')
 
 const CLI_OPTIONS = [
   {
@@ -25,12 +24,18 @@ class Command {
       version: packageJSON.version,
     })
     const { webSocketUrl } = this.octoDash.parseOptions()
-    const meshbluConfig = new MeshbluConfig()
-    const meshbluHttp = new MeshbluHttp(meshbluConfig.toJSON())
+    const meshbluConfig = new MeshbluConfig().toJSON()
+    if(!meshbluConfig.uuid) {
+      throw new Error('Missing Meshblu uuid')
+    }
+    if(!meshbluConfig.token) {
+      throw new Error('Missing Meshblu token')
+    }
+    const meshbluHttp = new MeshbluHttp(meshbluConfig)
     this.connector = new Connector({ meshbluHttp, webSocketUrl })
   }
 
-  static panic(error) {
+  panic(error) {
     console.error(error.stack) // eslint-disable-line no-console
     process.exit(1)
   }
