@@ -1,0 +1,108 @@
+branches:
+  only:
+  - "/^v[0-9]/"
+matrix:
+  fast_finish: true
+  include:
+  - os: linux
+    language: node_js
+    node_js: '8'
+    after_success:
+    - yarn global add meshblu-connector-schema-generator meshblu-connector-uploader-github
+    - mkdir -p ./deploy/assets
+    - meshblu-connector-schema-generator > ./deploy/assets/schemas.json
+    - meshblu-connector-uploader-github --installers-path ./deploy/assets
+  - os: linux
+    dist: trusty
+    language: shell
+    sudo: required
+    services:
+    - docker
+    install:
+    - docker pull octoblu/meshblu-connector-builder:linux-armv7
+    script:
+    - |
+      docker run --rm --volume $PWD:/work \
+        --env TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG \
+        --env TRAVIS_BRANCH=$TRAVIS_BRANCH \
+        --env MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN=$MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN \
+        --env AWS_REGION=$AWS_REGION \
+        --env AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        --env AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        --env MESHBLU_CONNECTOR_ENCRYPTION_PASSWORD=$MESHBLU_CONNECTOR_ENCRYPTION_PASSWORD \
+        --env MESHBLU_CONNECTOR_CERT_PASSWORD=$MESHBLU_CONNECTOR_CERT_PASSWORD \
+        octoblu/meshblu-connector-builder:linux-armv7 \
+          bash -c 'export HOME=/tmp/cache \
+            && meshblu-connector-pkger \
+            && meshblu-connector-installer-debian \
+            && meshblu-connector-uploader-github \
+            && upload-deb-s3 \
+          '
+  - os: linux
+    dist: trusty
+    language: shell
+    sudo: required
+    services:
+    - docker
+    install:
+    - docker pull octoblu/meshblu-connector-builder:linux-x86
+    script:
+    - |
+      docker run --rm --volume $PWD:/work \
+        --env TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG \
+        --env TRAVIS_BRANCH=$TRAVIS_BRANCH \
+        --env MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN=$MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN \
+        --env AWS_REGION=$AWS_REGION \
+        --env AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        --env AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        --env MESHBLU_CONNECTOR_ENCRYPTION_PASSWORD=$MESHBLU_CONNECTOR_ENCRYPTION_PASSWORD \
+        --env MESHBLU_CONNECTOR_CERT_PASSWORD=$MESHBLU_CONNECTOR_CERT_PASSWORD \
+        octoblu/meshblu-connector-builder:linux-x86 \
+          bash -c 'export HOME=/tmp/cache \
+            && meshblu-connector-pkger \
+            && meshblu-connector-installer-debian \
+            && meshblu-connector-uploader-github \
+            && upload-deb-s3 \
+          '
+  - os: linux
+    dist: trusty
+    language: shell
+    sudo: required
+    services:
+    - docker
+    install:
+    - docker pull octoblu/meshblu-connector-builder:linux-x64
+    script:
+    - |
+      docker run --rm --volume $PWD:/work \
+        --env TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG \
+        --env TRAVIS_BRANCH=$TRAVIS_BRANCH \
+        --env MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN=$MESHBLU_CONNECTOR_UPLOADER_GITHUB_TOKEN \
+        --env AWS_REGION=$AWS_REGION \
+        --env AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        --env AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        --env MESHBLU_CONNECTOR_ENCRYPTION_PASSWORD=$MESHBLU_CONNECTOR_ENCRYPTION_PASSWORD \
+        --env MESHBLU_CONNECTOR_CERT_PASSWORD=$MESHBLU_CONNECTOR_CERT_PASSWORD \
+        octoblu/meshblu-connector-builder:linux-x64 \
+          bash -c 'export HOME=/tmp/cache \
+            && meshblu-connector-pkger \
+            && meshblu-connector-installer-debian \
+            && meshblu-connector-uploader-github \
+            && upload-deb-s3 \
+          '
+  - os: osx
+    node_js: '8'
+    language: node_js
+    after_success:
+    - yarn global add meshblu-connector-pkger meshblu-connector-installer-macos meshblu-connector-uploader-github
+    - meshblu-connector-pkger && meshblu-connector-installer-macos && meshblu-connector-uploader-github
+env:
+  global:
+  - secure: c9obNx1M7llEY28oiGj/Hp9RCO7A/+cX+Bi25D/sGWGjc+/Mgf5R4vbnoWcf/PVye/Yf0rOED+jeL+QDtvRq3OiYmvO8FosJeBl64IQ0WxA1DZE7ugI3UAcyM4clSBdz5eRb1aE0M11Sx0WS4LoOywHhEpgSEQ5BCIunQKD9riGiNOE+Y81BA55uDFxZeo9Pak1s/IkrbeYFAFW0yFSLRfjMLCkJSl5d0YDkbmcwOkJtvAYmft1rMjN22G/rAn3UqQLA8f9FZz1iR0cUL4vMT0enJKX1zpZQQ3FNIMXsbb3rZ0m25lNSas7KHz35z1M/2q2Oa4O6S4oUkGW4WORIXaxjVDK4d0VGjxTZ0xE1VJa6WucU+S+eKRnDCkP1QrO9p1CU48J4zCGg6iMrKpNybCunwoGve1HrEk1epfqfHWI5dYKm4rtlJkH4T/WNKHtx/gft3DPSGjaxIEE+GhGOoQVCeAHEvuZPmFrl/yHMjaedjbys90G3rV8i3Yabrn7TKkwXFC1nHbUaPQDDBA0TTQNGq+mKud2OUqz38vFIgQUS5IMPD0fWXzit4RfZvKksCv+7TNIZmQT2kzTkfk4SridcQAB1eBaT2Av8j/3Ozv1BoGU0bAnPJT3s8MbwMA7nV7VDP7URlttpEtODHBfcGSkNZhK0AvrGVBaGWyFU4PQ=
+  - secure: Cf2ePoLYVrHdyRpTxjFXvDuEFfhLheVCXoCb4J+zzz8daPTZjJsDTpZheSnAY2Z4iKTk2ryHhlqemXMeztyUdFss4iFHCi3N4purahqY8qkmgvogIjw5s8RPRR/NUvLh0DSDq0BwXiN/FC2Yn6GgQ4BdXvvC1F7MdYBu9oaTRTbUmqQVk/NotvF1DVXt++rLDkhiX6i7ij2rWFQWKVSmoaRRBOWt6TCffaTZaPiKFC2BEsonMUlKvVe3zWacHFLqhRYGhtB32DXl4nQqR3UKl56R4Ih7mHQAf6BxI1hu9J7Xmb/sYOFUeMjculat4up6IYr3xsoHaZ5rRze4CA4fsVSewD4yzUUNG2+YiOmQVzydboNP7kClxlIoRVInq1fPHA94Pw9ThOUyG5WXhn0r2lq0ndzpaFt0J+8x6XBp1pzqG5Py1N//L32rfWb3M6uyOTA+InjqzWYRbQeuE3m+Ip4LxNea8xpVs/L27oqm7rNllO4g55dw4s9eIaV5SHDnbGZ/+fcHP/KDf5G+V+ebhwGThhrwJ+3do8alZbwJocxd49N/ZAqtjEHG0z44zd4EBBDOsd7PdNvVWZC8GnmvKdWE+d4USdECE9pl3CQPZ3P8H+A1wS/stNt/tOrAc7oMdpX3ifun8Xnj2STl41QeOVpyzqc8z/kBiXyVIqVLKqc=
+  - secure: Pqh5e3XBwU5BIoaXaHNtUnvjGc+EpI7SFDRDCzgVuxSjqjrCJNO96CBRePbqC613rKbNjdQhd7M5f+x/9FflUx0ABtwU75D+HXpsWkutDoWflyqqdTxz5KS7eHQNyvRCLILINkcRuXio+8f9Z/RAMY4NP3+1e8506OLO0QHoa+/qAR5EtmBxLaZZ8yDyNKtD4Qt0wexni2Pnit7I4AS5/mhrnz1Xc2XExFb78eISNO48nqNd13kpZfMcUVxmb4bh0q0fd/PIHBArCb7S+TR8wmFqHo+rqU2/u8Ycp+6XrAv+xEFL4RmIApB24BgXjcm5vehTbZtVxk3ncExaFhLMrRt+qWzo0CFlG//KHJnrFmeFQBlLb5DGg6TFgi43g6scKRXpzrNNgYVHlolgyw6L0DTz+VaM3bmQrcSCo4W8CwNs1WKCmgEFPR6HDE9bpOIgqXgLepMwtLtaCmGL77MwZK79rt0tGGIrKtFlu/SNife3SDHsBAkI/0PivzPrQ+LPCbf5HlHQgSXSCg2fFRTmSrWE8BexHWO/xxdO7zTdPZH1K+Pfv0fMq6KUFHgZuDfWmBUYvUzfIWoRvURGaPK97+8cBHNiQ8+OBLL3bTVw9wZq38Z6NlxFrmMlC/PDPdNmptFALXpZ2D6fJBLzIVwwXX428vVzh/BMXSACrcBa1YU=
+  - secure: UFhp2tDczemAz/e+3RlZvYzmvTUYqDddE3L+JZEDgJ3uazQuXWeV1M9MtkikJNDPpSUmMF2pfqi7e0ocuYrd5cUt7k9mhv0DIvQUv0AYwWBLjlI5YFh/74VTtyeAYnnuUFkIFhkMF/NI4ckN2E+bojQsKCysHFK8xcvsG33nhlLzGVydnVvaQEIxQmy3coGNzeh31P528srybqNAi0J+5A1FZM3hrWKO4UOEPePodVDQNR5Khkskrjgm7qn32KlIyy9uQbLl3L2BFg7ThnDm6nY351owkL4cipGAQRh94ZmQF0oQcY4lGyU5zmg0SnsoHwRaxDMbc1iu1UWcv4qoQNUdH9xM2mIWBlxnl+nHpatMYdDUkuJ9XPPZ2rwphTe0puIWQN7Bd6sjFKFSi9X2XiUMVFDqMJXOAcQ69wcausXF1HGqxy47bScBiGYKMTfumjYatHTYab65D9W0H5th99dJPUEEuwYa5cYYmDr3MDd65aRPdpJW7nwC66DP7n10bE7gXwEAW49wQ3jnQg63EUsn8i+mxLJs7hpJNbE6R3caec9PAxg/b/+KcdfkD6IRzuWbILcT80fbrm4xo/LfcZ27C+u2HWcecT2FDVCMWWMrX3E4keIRDKmS8N5Cww3cdiHdnU8sVYBZPTYBPquV1nXF6eDJ9hLwmGwRjH2XafI=
+  - secure: qjBZ0YCkalINAZoup67nXWlGJxLaqlR5RULghix5iUKm6XfoIRYEcjUsoXQBwPADEsdk7tcWh3fU5n65fio7BaSC7gmU9zCzs5Ykvl68yRmsGWr9ssIJc/4LPGqDcL/SZskgF+gDORWPn+9Bf2TWczIIG1KKQEAiOFOyhv53Tqx1e/bCq32+l0TQNncipDtMeqd/F4VfyTMm1zpIWuIlzolfRIPk531Fw9hr47RFWAwQ3AAdYDCMwRnXrhfCf3LWCcocc0bCqP/dZb1OdDP7/4zoX9ua2c2uMe06kRWTa+Az62hFQJp7pMTgNaKQyT78uP+G75oQFvPOwHKf4Du6l8UbBn0jIKnka72kF+hg498e+Pgr22IlHbfbQbmnnq5NapZ9juU1D/7mFI7xbO49ee7MvUVunJZ0bSsAgY4tgqXJbWaw7O/WiAyoPKcF+HO89/tU5lavQePz0luWZZkEA8RSKE4l+Gdummnl5GzpWd0Lxrm9vk7J0SGT7vuVEKA5wHt+WesL+vcu1hD5A7jaxTpq9GhW0vzySenLeHhjMnJkbEWHQ3EqN3d2Df0qNwS3ikSO30UAz5JslWeZZYmLCOqRN8rr7AxDzh2cwSK+czDIdqpCooANwINKuTGrHHmzZ2e/K2SWQCNyrnbEPx9kX+mWh5uhh3fYw6DcXe1SYmA=
+  - secure: KbxuKhJ0N4YH7pH2xj6Q67zQe7QXsNGWgpEpRYw/yP3Rac5I8eRJv0i5RERJFEkTvh5pNBxrqvYkJEzA3bLmxikz+qVElUy+0YX3dR9+mDEw7VONfWg0ps2MgcDkwhwosKPKTR6UsXgbw/1vy22JwI4YITup8QVGAm8YZF/0OkLkfDqG6VH9bttvHVwFMtxkpGZ8uUQGK0WEYB6RduIofHnp2cxGKmFDByFwrGqmDIhaUekR0TLAuvRM8cAIM+PG+tuMPrEkXQC5rm7wdTB7kRBdT0vPsu8mHwGALpPMmW4Tse7zJ0e6vZMob1eGr1bvK81dBhbcGhql5jBEZUGuCTXZ1bHfLQ1Fv/lcXWIcBVDPi1NVBorb/5qTiOS+vOhzHRc29XTn5QwFvu5YhtReAR+9HPsBNdrnj+P/bC7pCkWKz9vv2UufghH9exvTsyH60J/6xCif8gn23eiOkvsxW1TWWjNtIPZuxxb9fsI/+1BySgTeMgPkR+T5Ti3TvL8EHo87nXKIiAPIKke507byKd3yLQGrF1gdU0rCEbHt6o9AyMMoe2/KwQubJ2AFuj7FMkkeashTuFidjAIp+B5NugMcAq4pGZAtTYDpHyaoDIHkTdNcQ9JZ3oFqY4iCxWJhXzbd/thVJKadY1DN23tzqWBNcbrSvzc/wcQxjc6JDp8=
+  - secure: XoHnV3kxQpY8TOr43uS34n0OqGL/cMRAofgyltCoimNeL+O4KiPs2A/BkhvsFsAcaVIATfBYyNAPwKhHTQxBDQF/XbG9xB7ccgMuB6EdYke0ggUoJnaktUDZDCfRmBRFlaeWt4zRM/SekOdVDhqi2PCt1JVZsF3r0igsfT8DOJdcBWm7t+O6Qpb2EfF7bMGqTjNsxjgrUOw7dh42Jc0UWk6Cu+bV2dexuqRB92E/48on4J1lKXCLOQ+Mme+wAYnqtFM6h28Jsq3C4oPJyRcN18b7ldYPzNTqMi93Q3U/Dy0RIzUyTjWtMV7Sv5ikSRk89ZaOBNkbQnnvtN+Uf6MWAmdKZFyZPVE64TYfr4p/7dy45/TiCYrAMuIfo4xDYjqfdHmRp7CMINii5MsAkdgr0b6ofi/2ZucHURo/NaHd7OjwaiI9bJ+p9ekpWB5a8s7kgZ5LZ1/c+l/L8wPuVJr/Ux3iC3ruOebNuNlpRo63A2AkZ9U0vD0C1o2ArjNuw1xU++qppY1OFEp5ZTuy0j0gs0euQvwFpHh1/mFaubNhw+1l/iUh4ANuuGih9FDvV3Glkh80B5p7B4+RBAVpOb/3td1DQRIqEz9g+2UYXx9F4MPXu/SsbwJvyPztevBXCYRClFO/FoYNHmAEt5u0ejIfI+JbtRgv56ZZopXRzxdLPyM=
+  - secure: B70VRfw/m7wOACIz62JVkJaaaIi0pgvhVNeYYze081jVCixvChdUFel6+OsTXJTMww3jBipAjT+viu+eArHwWGFWCwY7W39kDqYeoz8kZDSbO99RzNkhgnKM/lwaVROOSBDhTioIYhvo6DQhgikzjn3rRWiSqhDXW1K5Zzs9XO/223YRxzUV7oyKFSJkfEd4MgSSNWM8ZKDi58r/VsZRFsAn9Tt895Ndjcdm017b87Pmfz/TqGPuFCly66TvJfWQT5Li/s3diLGyuvCmUqKwKJ84PiJX4MJhU7oLwQNwW4Jp6jdqROa1EHmWdS8phxQp+5QHPiXje+4WlHvjz9wPe92mZyJp9uuB4Ca6W0NiQ06Aud7lpAYT+pjF/JuZ0lrYhNOtCVR7TKvi7+snZKftsfVe7wsuNa+KTax+9h3Uw/qNadNM6nJYL+faFmhPSuHyXkJ+23QZQeJB8lkvLn74WS8V9TLOLgUL+Gcm2amAFMZUwZRYCnZsV3iU/+ftdnlV+fT2N4C2uypEv2LV95RXCXlNJgEOeY+AG8jbLMux+bbYFVmD60QHviGaM7CDy9g4s6h6bwGc4GIyzBApLIrz9vcoc7RFPfbHDkUxFRpjpIbsijne0GNSw0vPYPtAOvJxLtmhn77OGNMVhMjcYuVAZUJOMoor8P0PGWgdugR7evQ=

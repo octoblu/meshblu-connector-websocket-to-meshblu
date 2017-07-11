@@ -1,4 +1,4 @@
-const debug = require('debug')('websocket-to-meshblu:Connector')
+const debug = require('debug')('meshblu-connector-websocket-to-meshblu:Connector')
 const bindAll = require('lodash/fp/bindAll')
 const getOr = require('lodash/fp/getOr')
 const WebSocket = require('ws')

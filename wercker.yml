@@ -29,7 +29,7 @@ deploy:
           echo "Releasing: $(cat "${WERCKER_ROOT}/VERSION")"
           github-release upload \
             --user octoblu \
-            --repo websocket-to-meshblu \
+            --repo meshblu-connector-websocket-to-meshblu \
             --tag "$(cat "${WERCKER_ROOT}/VERSION")" \
             --name "left-right-http-linux-arm.tar.gz" \
             --file "${WERCKER_ROOT}/left-right-http-linux-arm.tar.gz"

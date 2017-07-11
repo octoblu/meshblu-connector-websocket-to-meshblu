@@ -1,18 +1,16 @@
 {
-  "name": "websocket-to-meshblu",
+  "name": "meshblu-connector-websocket-to-meshblu",
   "version": "1.0.2",
   "main": "command.js",
-  "repository": "git@github.com:octoblu/websocket-to-meshblu.git",
+  "repository": "git@github.com:octoblu/meshblu-connector-websocket-to-meshblu.git",
   "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
   "license": "MIT",
   "bin": {
-    "websocket-to-meshblu": "command.js"
+    "meshblu-connector-websocket-to-meshblu": "command.js"
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "node command.js",
-    "test": "mocha",
-    "test:watch": "mocha --growl --watch"
+    "start": "node command.js"
   },
   "dependencies": {
     "lodash": "^4.17.4",
