@@ -1,6 +1,6 @@
 {
   "name": "meshblu-connector-websocket-to-meshblu",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "command.js",
   "repository": "git@github.com:octoblu/meshblu-connector-websocket-to-meshblu.git",
   "author": "sqrtofsaturn <sqrtofsaturn@gmail.com>",
